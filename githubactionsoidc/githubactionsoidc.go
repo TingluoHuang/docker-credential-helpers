@@ -31,7 +31,7 @@ func (gh GitHubActionsOidc) Delete(serverURL string) error {
 
 // Get retrieves OIDC token from GitHub Actions environment.
 func (gh GitHubActionsOidc) Get(serverURL string) (string, string, error) {
-	gh.LogFile.WriteString(fmt.Sprintf("%s: Getting OIDC token\n", time.Now().UTC().Format(time.RFC3339)))
+	gh.LogFile.WriteString(fmt.Sprintf("%s: Getting OIDC token: %s\n", time.Now().UTC().Format(time.RFC3339), serverURL))
 
 	oidcRequestURL := os.Getenv("ACTIONS_ID_TOKEN_REQUEST_URL")
 	oidcRequestToken := os.Getenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN")
