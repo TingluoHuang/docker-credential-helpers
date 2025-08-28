@@ -108,9 +108,10 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
   xx-go --wrap
-  make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  make build-pass build-secretservice build-githubactionsoidc PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
   xx-verify /out/docker-credential-pass
   xx-verify /out/docker-credential-secretservice
+  xx-verify /out/docker-credential-githubactionsoidc
 EOT
 
 FROM base AS build-darwin
@@ -125,9 +126,10 @@ RUN --mount=type=bind,target=. \
   export MACOSX_VERSION_MIN=$(make print-MACOSX_DEPLOYMENT_TARGET)
   xx-go --wrap
   go install std
-  make build-osxkeychain build-pass PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  make build-osxkeychain build-pass build-githubactionsoidc PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
   xx-verify /out/docker-credential-osxkeychain
   xx-verify /out/docker-credential-pass
+  xx-verify /out/docker-credential-githubactionsoidc
 EOT
 
 FROM base AS build-windows
@@ -139,9 +141,11 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
   xx-go --wrap
-  make build-wincred PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  make build-wincred build-githubactionsoidc PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
   mv /out/docker-credential-wincred /out/docker-credential-wincred.exe
+  mv /out/docker-credential-githubactionsoidc /out/docker-credential-githubactionsoidc.exe
   xx-verify /out/docker-credential-wincred.exe
+  xx-verify /out/docker-credential-githubactionsoidc.exe
 EOT
 
 FROM build-$TARGETOS AS build

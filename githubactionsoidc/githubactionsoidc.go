@@ -19,11 +19,13 @@ type GitHubActionsOidc struct {
 
 // Add is a no-op for GitHub Actions OIDC helper.
 func (gh GitHubActionsOidc) Add(creds *credentials.Credentials) error {
+	gh.LogFile.WriteString(fmt.Sprintf("%s: Adding credentials for server: %s\n", time.Now().UTC().Format(time.RFC3339), creds.ServerURL))
 	return nil
 }
 
 // Delete is a no-op for GitHub Actions OIDC helper.
 func (gh GitHubActionsOidc) Delete(serverURL string) error {
+	gh.LogFile.WriteString(fmt.Sprintf("%s: Deleting credentials for server: %s\n", time.Now().UTC().Format(time.RFC3339), serverURL))
 	return nil
 }
 
@@ -31,10 +33,10 @@ func (gh GitHubActionsOidc) Delete(serverURL string) error {
 func (gh GitHubActionsOidc) Get(serverURL string) (string, string, error) {
 	gh.LogFile.WriteString(fmt.Sprintf("%s: Getting OIDC token\n", time.Now().UTC().Format(time.RFC3339)))
 
-	oidcRequestUrl := os.Getenv("ACTIONS_ID_TOKEN_REQUEST_URL")
+	oidcRequestURL := os.Getenv("ACTIONS_ID_TOKEN_REQUEST_URL")
 	oidcRequestToken := os.Getenv("ACTIONS_ID_TOKEN_REQUEST_TOKEN")
 
-	if oidcRequestUrl == "" || oidcRequestToken == "" {
+	if oidcRequestURL == "" || oidcRequestToken == "" {
 		gh.LogFile.WriteString(fmt.Sprintf("%s: Missing OIDC request URL or token\n", time.Now().UTC().Format(time.RFC3339)))
 		return "", "", credentials.NewErrCredentialsNotFound()
 	}
@@ -43,15 +45,15 @@ func (gh GitHubActionsOidc) Get(serverURL string) (string, string, error) {
 	if oidcAudience != "" {
 		// Check if URL already has query parameters
 		separator := "?"
-		if strings.Contains(oidcRequestUrl, "?") {
+		if strings.Contains(oidcRequestURL, "?") {
 			separator = "&"
 		}
-		oidcRequestUrl = oidcRequestUrl + separator + "audience=" + url.QueryEscape(oidcAudience)
-		gh.LogFile.WriteString(fmt.Sprintf("%s: Added OIDC audience to request URL: %s\n", time.Now().UTC().Format(time.RFC3339), oidcRequestUrl))
+		oidcRequestURL = oidcRequestURL + separator + "audience=" + url.QueryEscape(oidcAudience)
+		gh.LogFile.WriteString(fmt.Sprintf("%s: Added OIDC audience to request URL: %s\n", time.Now().UTC().Format(time.RFC3339), oidcRequestURL))
 	}
 
 	// make http get request to oidcRequestUrl with oidcRequestToken as bearer token header
-	req, err := http.NewRequest("GET", oidcRequestUrl, nil)
+	req, err := http.NewRequest("GET", oidcRequestURL, nil)
 	if err != nil {
 		gh.LogFile.WriteString(fmt.Sprintf("%s: Failed to create HTTP request: %v\n", time.Now().UTC().Format(time.RFC3339), err))
 		return "", "", credentials.NewErrCredentialsNotFound()
@@ -86,5 +88,6 @@ func (gh GitHubActionsOidc) Get(serverURL string) (string, string, error) {
 
 // List returns empty map for GitHub Actions OIDC helper (no stored credentials).
 func (gh GitHubActionsOidc) List() (map[string]string, error) {
+	gh.LogFile.WriteString(fmt.Sprintf("%s: Listing credentials\n", time.Now().UTC().Format(time.RFC3339)))
 	return nil, nil
 }

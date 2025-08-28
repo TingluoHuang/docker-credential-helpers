@@ -116,7 +116,7 @@ func TestGitHubActionsOidcHelper_Get_WithEnvironmentVariables(t *testing.T) {
 
 	// Test case 5: HTTP error response
 	t.Run("http error response", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		}))
 		defer server.Close()
@@ -132,7 +132,7 @@ func TestGitHubActionsOidcHelper_Get_WithEnvironmentVariables(t *testing.T) {
 
 	// Test case 6: Invalid JSON response
 	t.Run("invalid json response", func(t *testing.T) {
-		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 			w.Write([]byte("invalid json"))
 		}))
 		defer server.Close()
